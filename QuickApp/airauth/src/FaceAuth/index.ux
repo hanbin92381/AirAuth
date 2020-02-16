@@ -3,16 +3,20 @@
   <div class="auth-page">
     <div class="container">
       <camera id="camera" class="camera" deviceposition="front" flash="off" onerror="handlerError"></camera>
-      <input type="button" value="R" class="btn" onclick="upload_face"></input>
+      <input type="button" value="R" class="btn" onclick="takePhoto"></input>
     </div>
   </div>
 </template>
 
 <script>
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-console */
 /* eslint-disable no-undef */
 import prompt from '@system.prompt'
 import router from '@system.router'
 import websocketfactory from '@system.websocketfactory'
+import image from '@system.image'
+import file from '@system.file'
 
 let ws = null
 let isOpen = false
@@ -29,12 +33,99 @@ export default {
   },
   onInit() {
     this.$page.setTitleBar({ text: '面部认证' })
-    this.create()
-    this.upload_face()
-    this.close()
+    //this.create()
+    //this.upload_face()
+    //this.close()
   },
+  takePhoto() {
+    let _this = this
+
+    this.$element('camera').takePhoto({
+      // 通过quality参数设置照片质量
+      quality: _this.photoQuality,
+      success(data) {
+        // 获取回调中的照片地址
+        _this.pictureUrl = data.uri
+        console.info('compressimg before' + data.uri)
+
+        image.compressImage({
+          uri: data.uri,
+          radio: 2, // 变为原图的1/2大小
+          format: 'JPEG',
+          success: function (data) {
+            console.info('compressimg' + data.uri)
+            file.readArrayBuffer({
+              uri: data.uri,
+              success: function (temp) {
+                console.log('base64===' + arrayBufferToBase64(temp.buffer))
+                //var strBase64 = arrayBufferToBase64(temp.buffer)
+                _this.visible = '0'
+              },
+              fail: function (data, code) {
+                console.info('base64=== error')
+                _this.visible = '0'
+              }
+            })
+          },
+          fail: function (data, code) {
+            console.info(`handling fail, code = ${code}`)
+            _this.visible = '0'
+          }
+        })
+      },
+      fail(data, code) {
+        _this.visible = '0'
+        console.info('take photos failed：code' + code.code)
+      },
+      complete() {
+        console.info('complete')
+      }
+    })
+
+    function arrayBufferToBase64(raw) {
+      var base64 = ''
+      var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+      var bytes = new Uint8Array(raw)
+      var byteLength = bytes.byteLength
+      var byteRemainder = byteLength % 3
+      var mainLength = byteLength - byteRemainder
+      var a, b, c, d
+      var chunk
+      // Main loop deals with bytes in chunks of 3
+      for (var i = 0; i < mainLength; i = i + 3) {
+        // Combine the three bytes into a single integer
+        chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]
+        // Use bitmasks to extract 6-bit segments from the triplet
+        a = (chunk & 16515072) >> 18 // 16515072 = (2^6 - 1) << 18
+        b = (chunk & 258048) >> 12 // 258048 = (2^6 - 1) << 12
+        c = (chunk & 4032) >> 6 // 4032 = (2^6 - 1) << 6
+        d = chunk & 63 // 63 = 2^6 - 1
+        // Convert the raw binary segments to the appropriate ASCII encoding
+        base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d]
+      }
+      // Deal with the remaining bytes and padding
+      if (byteRemainder == 1) {
+        chunk = bytes[mainLength]
+        a = (chunk & 252) >> 2 // 252 = (2^6 - 1) << 2;
+        // Set the 4 least significant bits to zero
+        b = (chunk & 3) << 4 // 3 = 2^2 - 1;
+        base64 += encodings[a] + encodings[b] + '=='
+      }
+      else if (byteRemainder == 2) {
+        chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1]
+        a = (chunk & 16128) >> 8 // 16128 = (2^6 - 1) << 8;
+        b = (chunk & 1008) >> 4 // 1008 = (2^6 - 1) << 4;
+        // Set the 2 least significant bits to zero
+        c = (chunk & 15) << 2 // 15 = 2^4 - 1;
+        base64 += encodings[a] + encodings[b] + encodings[c] + '='
+      }
+      // return 'data:image/jpeg;base64' + base64
+      return base64
+    }
+  },
+
   upload_face() {
-    this.send()
+    //this.send()
     setTimeout()
     router.push({
       uri: '/AuthResult',
