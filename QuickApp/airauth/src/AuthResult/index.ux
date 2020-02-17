@@ -40,7 +40,7 @@ export default {
             router.push({
               //uri:'/Management',
               //uri:'http://w-16332-32721-57575.479040224.sites.hk34.qifeiye.com/?page_id=18686&qfy_preview=1',
-              uri: 'http://geecat:443/oauth'
+              uri: 'http://geecat.cn'
             })
           },2000)
     }

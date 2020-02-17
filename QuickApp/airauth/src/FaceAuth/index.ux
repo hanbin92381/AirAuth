@@ -3,7 +3,7 @@
   <div class="auth-page">
     <div class="container">
       <camera id="camera" class="camera" deviceposition="front" flash="off" onerror="handlerError"></camera>
-      <input type="button" value="R" class="btn" onclick="takePhoto"></input>
+      <input type="button" value="R" class="btn" onclick="upload_face"></input>
     </div>
   </div>
 </template>
@@ -122,7 +122,7 @@ export default {
   },
   upload_face() {
     reguest.upload({
-      url: 'http://geecat:443/oauth/do_login',
+      url: 'http://geecat.cn:443/oauth/do_login',
       method: 'POST',
       files: [
         {
@@ -138,9 +138,17 @@ export default {
       ],
       success: function (data) {
         console.log('handling success')
+        prompt.showToast({
+          message: 'handling success',
+          duration: 0
+        })
       },
       fail: function (data, code) {
         console.log(`handling fail, code = ${code}`)
+        prompt.showToast({
+          message: 'handling fail\ndata : ' + data + '\ncode : ' + code,
+          duration: 1
+        })
       }
     })
     //this.send()
