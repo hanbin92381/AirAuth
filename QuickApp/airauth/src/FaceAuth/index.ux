@@ -14,7 +14,7 @@
 /* eslint-disable no-undef */
 import prompt from '@system.prompt'
 import router from '@system.router'
-import websocketfactory from '@system.websocketfactory'
+import reguest from '@system.request'
 import image from '@system.image'
 import file from '@system.file'
 
@@ -33,9 +33,6 @@ export default {
   },
   onInit() {
     this.$page.setTitleBar({ text: '面部认证' })
-    //this.create()
-    //this.upload_face()
-    //this.close()
   },
   takePhoto() {
     let _this = this
@@ -47,7 +44,7 @@ export default {
         // 获取回调中的照片地址
         _this.pictureUrl = data.uri
         console.info('compressimg before' + data.uri)
-
+        
         image.compressImage({
           uri: data.uri,
           radio: 2, // 变为原图的1/2大小
@@ -123,8 +120,29 @@ export default {
       return base64
     }
   },
-
   upload_face() {
+    reguest.upload({
+      url: 'http://geecat:443/oauth/do_login',
+      method: 'POST',
+      files: [
+        {
+          uri: '/Common/img/heck.jpg',
+          filename: 'face.jpeg'
+        }
+      ],
+      data: [
+        {
+          name: 'param1',
+          value: 'value1'
+        }
+      ],
+      success: function (data) {
+        console.log('handling success')
+      },
+      fail: function (data, code) {
+        console.log(`handling fail, code = ${code}`)
+      }
+    })
     //this.send()
     setTimeout()
     router.push({

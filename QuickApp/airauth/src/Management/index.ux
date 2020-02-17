@@ -4,7 +4,7 @@
     <div class="flexible-tabs">
       <!-- 自定义tab-bar组件 -->
       <div class="flexible-tabbar">
-        <image src="../Common/img/user.png"></image>
+        <image src="../Common/img/user.png" onclick="routePage('FaceAuth')"></image>
         <text class="{{currentIndex === 0 ? 'active' : ''}}" onclick="clickTabBar(0)">应用</text>
         <text class="{{currentIndex === 1 ?  'active' : ''}}" onclick="clickTabBar(1)">智能设备</text>
         <text class="{{currentIndex === 2 ? 'active' : ''}}" onclick="clickTabBar(2)">授权用户</text>

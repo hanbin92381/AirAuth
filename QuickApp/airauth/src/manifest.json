@@ -20,6 +20,15 @@
     },
     {
       "name": "system.bluetooth"
+    },
+    {
+      "name": "system.request"
+    },
+    {
+      "name": "system.image"
+    },
+    {
+      "name": "system.file"
     }
   ],
   "permissions": [
@@ -49,6 +58,9 @@
         "component": "index"
       },
       "FaceAuth": {
+        "component": "index"
+      },
+      "Auth": {
         "component": "index"
       }
     },
