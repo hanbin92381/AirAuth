@@ -3,7 +3,7 @@
   <div class="auth-page">
     <div class="container">
       <camera id="camera" class="camera" deviceposition="front" flash="off" onerror="handlerError"></camera>
-      <input type="button" value="R" class="btn" onclick="upload_face"></input>
+      <input type="button" value="R" class="btn" onclick="takePhoto"></input>
     </div>
   </div>
 </template>
@@ -43,7 +43,7 @@ export default {
       success(data) {
         // 获取回调中的照片地址
         _this.pictureUrl = data.uri
-        console.info('compressimg before' + data.uri)
+        console.info('compressimg before ' + _this.pictureUrl)
         
         // image.compressImage({
         //   uri: data.uri,
@@ -69,6 +69,8 @@ export default {
         //     _this.visible = '0'
         //   }
         // })
+        _this.upload_face()
+        
       },
       fail(data, code) {
         _this.visible = '0'
@@ -121,13 +123,11 @@ export default {
     }
   },
   upload_face() {
-    this.takePhoto()
     reguest.upload({
       url: 'http://geecat.cn:443/oauth/do_login',
       method: 'POST',
       files: [
         {
-          //uri: '/Common/img/heck.jpg',
           uri: this.pictureUrl,
           filename: 'img'
         }
@@ -136,11 +136,11 @@ export default {
         {
           name: 'param1',
           value: 'value1',
-          response_type: this.response_type,
-          client_id: this.client_id,
-          redirect_uri: this.redirect_uri,
-          scope: this.scope,
-          state: this.state,
+        //   response_type: this.response_type,
+        //   client_id: this.client_id,
+        //   redirect_uri: this.redirect_uri,
+        //   scope: this.scope,
+        //   state: this.state,
         }
       ],
       success: function (data) {
@@ -158,11 +158,10 @@ export default {
         })
       }
     })
-    //this.send()
-    setTimeout()
-    router.push({
-      uri: '/AuthResult',
-    })
+    // setTimeout()
+    // router.push({
+    //   uri: '/AuthResult',
+    // })
   },
   create() {
     ws = websocketfactory.create({
