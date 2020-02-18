@@ -17,6 +17,7 @@ import router from '@system.router'
 import reguest from '@system.request'
 import image from '@system.image'
 import file from '@system.file'
+import fetch from '@system.fetch'
 
 let ws = null
 let isOpen = false
@@ -45,32 +46,33 @@ export default {
         _this.pictureUrl = data.uri
         console.info('compressimg before ' + _this.pictureUrl)
         
-        // image.compressImage({
-        //   uri: data.uri,
-        //   radio: 2, // 变为原图的1/2大小
-        //   format: 'JPEG',
-        //   success: function (data) {
-        //     console.info('compressimg' + data.uri)
-        //     file.readArrayBuffer({
-        //       uri: data.uri,
-        //       success: function (temp) {
-        //         console.log('base64===' + arrayBufferToBase64(temp.buffer))
-        //         //var strBase64 = arrayBufferToBase64(temp.buffer)
-        //         _this.visible = '0'
-        //       },
-        //       fail: function (data, code) {
-        //         console.info('base64=== error')
-        //         _this.visible = '0'
-        //       }
-        //     })
-        //   },
-        //   fail: function (data, code) {
-        //     console.info(`handling fail, code = ${code}`)
-        //     _this.visible = '0'
-        //   }
-        // })
-        _this.upload_face()
-        
+        image.compressImage({
+          uri: data.uri,
+          radio: 2, // 变为原图的1/2大小
+          format: 'JPEG',
+          success: function (data) {
+            console.info('compressimg' + data.uri)
+            file.readArrayBuffer({
+              uri: data.uri,
+              success: function (temp) {
+                var strBase64 = arrayBufferToBase64(temp.buffer)
+                console.log('base64===' + strBase64)
+
+                _this.upload_fetch(strBase64)
+
+                _this.visible = '0'
+              },
+              fail: function (data, code) {
+                console.info('base64=== error')
+                _this.visible = '0'
+              }
+            })
+          },
+          fail: function (data, code) {
+            console.info(`handling fail, code = ${code}`)
+            _this.visible = '0'
+          }
+        })
       },
       fail(data, code) {
         _this.visible = '0'
@@ -122,7 +124,7 @@ export default {
       return base64
     }
   },
-  upload_face() {
+  upload_request() {
     reguest.upload({
       url: 'http://geecat.cn:443/oauth/do_login',
       method: 'POST',
@@ -162,6 +164,23 @@ export default {
     // router.push({
     //   uri: '/AuthResult',
     // })
+  },
+  upload_fetch(str){
+    fetch.fetch({
+      url: 'http://geecat.cn:443/oauth/do_login',
+      method: 'POST',
+      data: str,
+      success: function(response) {
+        console.log(`the status code of the response: ${response.code}`)
+        console.log(`the data of the response: ${response.data}`)
+        console.log(`the headers of the response: ${JSON.stringify(response.headers)}`
+        )
+      },
+      fail: function(data, code) {
+        console.log(`handling fail, errMsg = ${data}`)
+        console.log(`handling fail, errCode = ${code}`)
+      }
+    })
   },
   create() {
     ws = websocketfactory.create({

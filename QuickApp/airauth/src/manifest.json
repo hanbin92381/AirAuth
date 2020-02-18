@@ -25,6 +25,9 @@
       "name": "system.request"
     },
     {
+      "name": "system.fetch"
+    },
+    {
       "name": "system.image"
     },
     {
