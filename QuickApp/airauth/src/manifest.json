@@ -62,6 +62,9 @@
       },
       "Auth": {
         "component": "index"
+      },
+      "Demo": {
+        "component": "index"
       }
     },
     "widgets": {}
