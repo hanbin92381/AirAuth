@@ -45,30 +45,30 @@ export default {
         _this.pictureUrl = data.uri
         console.info('compressimg before' + data.uri)
         
-        image.compressImage({
-          uri: data.uri,
-          radio: 2, // 变为原图的1/2大小
-          format: 'JPEG',
-          success: function (data) {
-            console.info('compressimg' + data.uri)
-            file.readArrayBuffer({
-              uri: data.uri,
-              success: function (temp) {
-                console.log('base64===' + arrayBufferToBase64(temp.buffer))
-                //var strBase64 = arrayBufferToBase64(temp.buffer)
-                _this.visible = '0'
-              },
-              fail: function (data, code) {
-                console.info('base64=== error')
-                _this.visible = '0'
-              }
-            })
-          },
-          fail: function (data, code) {
-            console.info(`handling fail, code = ${code}`)
-            _this.visible = '0'
-          }
-        })
+        // image.compressImage({
+        //   uri: data.uri,
+        //   radio: 2, // 变为原图的1/2大小
+        //   format: 'JPEG',
+        //   success: function (data) {
+        //     console.info('compressimg' + data.uri)
+        //     file.readArrayBuffer({
+        //       uri: data.uri,
+        //       success: function (temp) {
+        //         console.log('base64===' + arrayBufferToBase64(temp.buffer))
+        //         //var strBase64 = arrayBufferToBase64(temp.buffer)
+        //         _this.visible = '0'
+        //       },
+        //       fail: function (data, code) {
+        //         console.info('base64=== error')
+        //         _this.visible = '0'
+        //       }
+        //     })
+        //   },
+        //   fail: function (data, code) {
+        //     console.info(`handling fail, code = ${code}`)
+        //     _this.visible = '0'
+        //   }
+        // })
       },
       fail(data, code) {
         _this.visible = '0'
@@ -121,19 +121,26 @@ export default {
     }
   },
   upload_face() {
+    this.takePhoto()
     reguest.upload({
       url: 'http://geecat.cn:443/oauth/do_login',
       method: 'POST',
       files: [
         {
-          uri: '/Common/img/heck.jpg',
-          filename: 'face.jpeg'
+          //uri: '/Common/img/heck.jpg',
+          uri: this.pictureUrl,
+          filename: 'img'
         }
       ],
       data: [
         {
           name: 'param1',
-          value: 'value1'
+          value: 'value1',
+          response_type: this.response_type,
+          client_id: this.client_id,
+          redirect_uri: this.redirect_uri,
+          scope: this.scope,
+          state: this.state,
         }
       ],
       success: function (data) {

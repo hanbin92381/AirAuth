@@ -6,7 +6,7 @@
 <script>
 import webview from '@system.webview'
 webview.loadUrl({
-  url: 'http://w-16332-32721-57575.479040224.sites.hk34.qifeiye.com/?qfy_preview=1',
+  url: 'http://www.geecat.cn/accounts/login/?next=/',
   allowthirdpartycookies: true
 })
 export default {
