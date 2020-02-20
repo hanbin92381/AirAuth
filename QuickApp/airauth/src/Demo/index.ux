@@ -5,6 +5,13 @@
       <camera id="camera" class="camera" deviceposition="front" flash="off" onerror="handlerError"></camera>
       <input type="button" value="R" class="btn" onclick="takePhoto"></input>
     </div>
+    <div class="text1">
+      <text>response_type: {{response_type}}</text>
+      <text>client_id: {{client_id}}</text>
+      <text>redirect_uri: {{redirect_uri}}</text>
+      <text>scope: {{scope}}</text>
+      <text>state: {{state}}</text>
+    </div>
   </div>
 </template>
 
@@ -60,33 +67,37 @@ export default {
         _this.pictureUrl = data.uri
         console.info('compressimg before ' + _this.pictureUrl)
 
-        image.compressImage({
-          uri: data.uri,
-          radio: 2, // 变为原图的1/2大小
-          format: 'JPEG',
-          success: function (data) {
-            console.info('compressimg' + data.uri)
-            file.readArrayBuffer({
-              uri: data.uri,
-              success: function (temp) {
-                var strBase64 = arrayBufferToBase64(temp.buffer)
-                console.log('base64===' + strBase64)
-
-                _this.upload_fetch(strBase64)
-
-                _this.visible = '0'
-              },
-              fail: function (data, code) {
-                console.info('base64=== error')
-                _this.visible = '0'
-              }
-            })
-          },
-          fail: function (data, code) {
-            console.info(`handling fail, code = ${code}`)
-            _this.visible = '0'
-          }
+        prompt.showToast({
+          message: 'response_type: ' + _this.response_type + '\nclient_id: ' + _this.client_id + '\nredirect_uri: '+ _this.redirect_uri,
+          duration: 1
         })
+        // image.compressImage({
+        //   uri: data.uri,
+        //   radio: 2, // 变为原图的1/2大小
+        //   format: 'JPEG',
+        //   success: function (data) {
+        //     console.info('compressimg' + data.uri)
+        //     file.readArrayBuffer({
+        //       uri: data.uri,
+        //       success: function (temp) {
+        //         var strBase64 = arrayBufferToBase64(temp.buffer)
+        //         console.log('base64===' + strBase64)
+
+        //         _this.upload_fetch(strBase64)
+
+        //         _this.visible = '0'
+        //       },
+        //       fail: function (data, code) {
+        //         console.info('base64=== error')
+        //         _this.visible = '0'
+        //       }
+        //     })
+        //   },
+        //   fail: function (data, code) {
+        //     console.info(`handling fail, code = ${code}`)
+        //     _this.visible = '0'
+        //   }
+        // })
       },
       fail(data, code) {
         _this.visible = '0'
@@ -291,7 +302,7 @@ export default {
 }
 .camera {
   position: fixed;
-  height: 100%;
+  height: 70%;
   width: 100%;
 }
 .btn {
