@@ -14,10 +14,11 @@
 /* eslint-disable no-undef */
 import prompt from '@system.prompt'
 import router from '@system.router'
-import reguest from '@system.request'
+import request from '@system.request'
 import image from '@system.image'
 import file from '@system.file'
 import fetch from '@system.fetch'
+import device from '@system.device'
 
 let ws = null
 let isOpen = false
@@ -30,13 +31,26 @@ export default {
     scope: '',
     state: '',
     pictureUrl: '',
+    deviceId: '',
     message: '',
   },
   onInit() {
     this.$page.setTitleBar({ text: '面部认证' })
   },
+  getId() {
+    device.getDeviceId({
+      success: function (data) {
+        console.log(`handling success: ${data.deviceId}`)
+        this.deviceId = data.deviceId
+      },
+      fail: function (data, code) {
+        console.log(`handling fail, code = ${code}`)
+      }
+    })
+  },
   takePhoto() {
     let _this = this
+    this.getId()
 
     this.$element('camera').takePhoto({
       // 通过quality参数设置照片质量
@@ -45,7 +59,7 @@ export default {
         // 获取回调中的照片地址
         _this.pictureUrl = data.uri
         console.info('compressimg before ' + _this.pictureUrl)
-        
+
         image.compressImage({
           uri: data.uri,
           radio: 2, // 变为原图的1/2大小
@@ -120,8 +134,8 @@ export default {
         c = (chunk & 15) << 2 // 15 = 2^4 - 1;
         base64 += encodings[a] + encodings[b] + encodings[c] + '='
       }
-      // return 'data:image/jpeg;base64' + base64
-      return base64
+
+      return 'data:image/jpeg;base64' + base64
     }
   },
   upload_request() {
@@ -138,24 +152,24 @@ export default {
         {
           name: 'param1',
           value: 'value1',
-        //   response_type: this.response_type,
-        //   client_id: this.client_id,
-        //   redirect_uri: this.redirect_uri,
-        //   scope: this.scope,
-        //   state: this.state,
+          response_type: this.response_type,
+          client_id: this.client_id,
+          redirect_uri: this.redirect_uri,
+          scope: this.scope,
+          state: this.state,
         }
       ],
       success: function (data) {
-        console.log('handling success')
+        console.log('request success')
         prompt.showToast({
-          message: 'handling success',
+          message: 'request success',
           duration: 0
         })
       },
       fail: function (data, code) {
-        console.log(`handling fail, res : ${data}, code = ${code}`)
+        console.log(`request fail, res : ${data}, code = ${code}`)
         prompt.showToast({
-          message: 'handling fail',
+          message: 'request fail',
           duration: 1
         })
       }
@@ -165,22 +179,39 @@ export default {
     //   uri: '/AuthResult',
     // })
   },
-  upload_fetch(str){
+  upload_fetch(str) {
     fetch.fetch({
       url: 'http://geecat.cn:443/oauth/do_login',
       method: 'POST',
+      header:
+        {
+          'response_type': this.response_type,
+          'client_id': this.client_id,
+          'redirect_uri': this.redirect_uri,
+          'scope': this.scope,
+          'state': this.state,
+        },
       data: str,
-      success: function(response) {
+      success: function (response) {
         console.log(`the status code of the response: ${response.code}`)
         console.log(`the data of the response: ${response.data}`)
-        console.log(`the headers of the response: ${JSON.stringify(response.headers)}`
-        )
+        console.log(`the headers of the response: ${JSON.stringify(response.headers)}`)
+        prompt.showToast({
+          message: 'fetch success',
+        })
       },
-      fail: function(data, code) {
+      fail: function (data, code) {
         console.log(`handling fail, errMsg = ${data}`)
         console.log(`handling fail, errCode = ${code}`)
+        prompt.showToast({
+          message: 'fetch fail',
+        })
       }
     })
+    // setTimeout()
+    // router.push({
+    //   uri: '/AuthResult',
+    // })
   },
   create() {
     ws = websocketfactory.create({
