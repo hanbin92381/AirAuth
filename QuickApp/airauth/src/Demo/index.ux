@@ -1,16 +1,12 @@
 <template>
-  <!-- template里只能有一个根节点 -->
   <div class="auth-page">
     <div class="container">
       <camera id="camera" class="camera" deviceposition="front" flash="off" onerror="handlerError"></camera>
       <input type="button" value="R" class="btn" onclick="takePhoto"></input>
     </div>
+    <!-- 测试用输出 -->
     <div class="text1">
-      <text>response_type: {{response_type}}</text>
-      <text>client_id: {{client_id}}</text>
-      <text>redirect_uri: {{redirect_uri}}</text>
-      <text>scope: {{scope}}</text>
-      <text>state: {{state}}</text>
+      <text>response: {{message}}</text>
     </div>
   </div>
 </template>
@@ -67,37 +63,36 @@ export default {
         _this.pictureUrl = data.uri
         console.info('compressimg before ' + _this.pictureUrl)
 
-        prompt.showToast({
-          message: 'response_type: ' + _this.response_type + '\nclient_id: ' + _this.client_id + '\nredirect_uri: '+ _this.redirect_uri,
-          duration: 1
+        image.compressImage({
+          uri: data.uri,
+          radio: 2, // 变为原图的1/2大小
+          format: 'JPEG',
+          success: function (data) {
+            console.info('compressimg' + data.uri)
+
+            _this.upload_request()
+
+            // file.readArrayBuffer({
+            //   uri: data.uri,
+            //   success: function (temp) {
+            //     var strBase64 = arrayBufferToBase64(temp.buffer)
+            //     console.log('base64===' + strBase64)
+
+            //     _this.upload_fetch(strBase64)
+
+            //     _this.visible = '0'
+            //   },
+            //   fail: function (data, code) {
+            //     console.info('base64=== error')
+            //     _this.visible = '0'
+            //   }
+            // })
+          },
+          fail: function (data, code) {
+            console.info(`handling fail, code = ${code}`)
+            _this.visible = '0'
+          }
         })
-        // image.compressImage({
-        //   uri: data.uri,
-        //   radio: 2, // 变为原图的1/2大小
-        //   format: 'JPEG',
-        //   success: function (data) {
-        //     console.info('compressimg' + data.uri)
-        //     file.readArrayBuffer({
-        //       uri: data.uri,
-        //       success: function (temp) {
-        //         var strBase64 = arrayBufferToBase64(temp.buffer)
-        //         console.log('base64===' + strBase64)
-
-        //         _this.upload_fetch(strBase64)
-
-        //         _this.visible = '0'
-        //       },
-        //       fail: function (data, code) {
-        //         console.info('base64=== error')
-        //         _this.visible = '0'
-        //       }
-        //     })
-        //   },
-        //   fail: function (data, code) {
-        //     console.info(`handling fail, code = ${code}`)
-        //     _this.visible = '0'
-        //   }
-        // })
       },
       fail(data, code) {
         _this.visible = '0'
@@ -150,7 +145,9 @@ export default {
     }
   },
   upload_request() {
-    reguest.upload({
+    let _this = this
+
+    request.upload({
       url: 'http://geecat.cn:443/oauth/do_login',
       method: 'POST',
       files: [
@@ -161,26 +158,40 @@ export default {
       ],
       data: [
         {
-          name: 'param1',
-          value: 'value1',
-          response_type: this.response_type,
-          client_id: this.client_id,
-          redirect_uri: this.redirect_uri,
-          scope: this.scope,
-          state: this.state,
+          name: 'response_type',
+          value: this.response_type,
+        },
+        {
+          name: 'client_id',
+          value: this.client_id,
+        },
+        {
+          name: 'redirect_uri',
+          value: this.redirect_uri,
+        },
+        {
+          name: 'scope',
+          value: this.scope,
+        },
+        {
+          name: 'state',
+          value: this.state,
         }
       ],
       success: function (data) {
         console.log('request success')
+
+        _this.message = data.code + '\n' + data.data
+
         prompt.showToast({
-          message: 'request success',
-          duration: 0
+          message: 'request success :' + data.code + '\n' + data.data,
+          duration: 1
         })
       },
       fail: function (data, code) {
         console.log(`request fail, res : ${data}, code = ${code}`)
         prompt.showToast({
-          message: 'request fail',
+          message: 'request fail: ' + code + '\n' + data,
           duration: 1
         })
       }
@@ -208,14 +219,14 @@ export default {
         console.log(`the data of the response: ${response.data}`)
         console.log(`the headers of the response: ${JSON.stringify(response.headers)}`)
         prompt.showToast({
-          message: 'fetch success',
+          message: 'fetch success： ' + response.code + '\n' + response.data,
         })
       },
       fail: function (data, code) {
         console.log(`handling fail, errMsg = ${data}`)
         console.log(`handling fail, errCode = ${code}`)
         prompt.showToast({
-          message: 'fetch fail',
+          message: 'fetch fail ' + code + '\n' + data,
         })
       }
     })
@@ -302,7 +313,7 @@ export default {
 }
 .camera {
   position: fixed;
-  height: 70%;
+  height: 100%;
   width: 100%;
 }
 .btn {

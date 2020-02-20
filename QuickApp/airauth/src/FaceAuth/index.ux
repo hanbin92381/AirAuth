@@ -14,7 +14,7 @@
 /* eslint-disable no-undef */
 import prompt from '@system.prompt'
 import router from '@system.router'
-import reguest from '@system.request'
+import request from '@system.request'
 import image from '@system.image'
 import file from '@system.file'
 
@@ -121,7 +121,7 @@ export default {
     }
   },
   upload_face() {
-    reguest.upload({
+    request.upload({
       url: 'http://geecat.cn:443/oauth/do_login',
       method: 'POST',
       files: [
